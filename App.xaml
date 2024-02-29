@@ -1,0 +1,9 @@
+﻿<Application x:Class="VideoCompressor.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:VideoCompressor"
+             StartupUri="VideoCompressor.xaml">
+    <Application.Resources>
+		<FontFamily x:Key="Quicksand">pack://application:,,,/Fonts/#Quicksand</FontFamily>
+	</Application.Resources>
+</Application>

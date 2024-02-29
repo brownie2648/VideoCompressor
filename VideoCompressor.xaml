@@ -1,0 +1,281 @@
+﻿<Window x:Name="compressorWindow" x:Class="VideoCompressor.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:sys="clr-namespace:System;assembly=mscorlib" 
+        xmlns:local="clr-namespace:VideoCompressor"
+        mc:Ignorable="d"
+		MouseDown="Window_MouseDown"
+        Title="Video Compressor" Height="400" Width="800" ResizeMode="NoResize" Icon="/Icon.png" Background="#FF0C0C0C" WindowStyle="None">
+	<Window.Resources>
+		<ObjectDataProvider x:Key="VideoCodecsData"
+                    ObjectType="{x:Type sys:Enum}"
+                    MethodName="GetValues">
+			<ObjectDataProvider.MethodParameters>
+				<x:Type TypeName="local:VideoCodecType" />
+			</ObjectDataProvider.MethodParameters>
+		</ObjectDataProvider>
+
+		<ControlTemplate x:Key="ComboBoxToggleButton" TargetType="{x:Type ToggleButton}">
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition />
+					<ColumnDefinition Width="20" />
+				</Grid.ColumnDefinitions>
+				<Border
+			x:Name="Border"
+			Grid.ColumnSpan="2"
+			CornerRadius="0"
+			Background="#FF3F3F3F"
+			BorderBrush="#FF97A0A5"
+			BorderThickness="1" />
+				<Border
+			Grid.Column="0"
+			CornerRadius="0"
+			Margin="1"
+			Background="#FF3F3F3F"
+			BorderBrush="#FF97A0A5"
+			BorderThickness="0,0,1,0" />
+				<Path
+			x:Name="Arrow"
+			Grid.Column="1"
+			Fill="White"
+			HorizontalAlignment="Center"
+			VerticalAlignment="Center"
+			Data="M0,0 L0,2 L4,6 L8,2 L8,0 L4,4 z"
+		/>
+			</Grid>
+		</ControlTemplate>
+
+		<ControlTemplate x:Key="ComboBoxTextBox" TargetType="{x:Type TextBox}">
+			<Border x:Name="PART_ContentHost" Focusable="False" Background="{TemplateBinding Background}" />
+		</ControlTemplate>
+
+		<Style x:Key="{x:Type ComboBox}" TargetType="{x:Type ComboBox}">
+			<Setter Property="SnapsToDevicePixels" Value="true" />
+			<Setter Property="OverridesDefaultStyle" Value="true" />
+			<Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto" />
+			<Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+			<Setter Property="ScrollViewer.CanContentScroll" Value="true" />
+			<Setter Property="MinWidth" Value="120" />
+			<Setter Property="MinHeight" Value="20" />
+			<Setter Property="Foreground" Value="White" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type ComboBox}">
+						<Grid>
+							<ToggleButton
+						Name="ToggleButton"
+						Template="{StaticResource ComboBoxToggleButton}"
+						Grid.Column="2"
+						Focusable="false"
+						IsChecked="{Binding Path=IsDropDownOpen,Mode=TwoWay,RelativeSource={RelativeSource TemplatedParent}}"
+						ClickMode="Press">
+							</ToggleButton>
+							<ContentPresenter Name="ContentSite" IsHitTestVisible="False"
+						Content="{TemplateBinding SelectionBoxItem}"
+						ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+						ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+						Margin="3,3,23,3"
+						VerticalAlignment="Center"
+						HorizontalAlignment="Left" />
+							<TextBox x:Name="PART_EditableTextBox"
+						Style="{x:Null}"
+						Template="{StaticResource ComboBoxTextBox}"
+						HorizontalAlignment="Left"
+						VerticalAlignment="Center"
+						Margin="3,3,23,3"
+						Focusable="True"
+						Background="#FF3F3F3F"
+						Foreground="Green"
+						Visibility="Hidden"
+						IsReadOnly="{TemplateBinding IsReadOnly}" />
+							<Popup
+						Name="Popup"
+						Placement="Bottom"
+						IsOpen="{TemplateBinding IsDropDownOpen}"
+						AllowsTransparency="True"
+						Focusable="False"
+						PopupAnimation="Slide">
+
+								<Grid Name="DropDown"
+							SnapsToDevicePixels="True"
+							MinWidth="{TemplateBinding ActualWidth}"
+							MaxHeight="{TemplateBinding MaxDropDownHeight}">
+									<Border
+								x:Name="DropDownBorder"
+								Background="#FF3F3F3F"
+								BorderThickness="1"
+								BorderBrush="#888888" />
+									<ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
+										<StackPanel IsItemsHost="True"
+									KeyboardNavigation.DirectionalNavigation="Contained" />
+									</ScrollViewer>
+								</Grid>
+							</Popup>
+						</Grid>
+						<ControlTemplate.Triggers>
+							<Trigger Property="HasItems" Value="false">
+								<Setter TargetName="DropDownBorder" Property="MinHeight" Value="95" />
+							</Trigger>
+							<Trigger Property="IsEnabled" Value="false">
+								<Setter Property="Foreground" Value="#888888" />
+							</Trigger>
+							<Trigger Property="IsGrouping" Value="true">
+								<Setter Property="ScrollViewer.CanContentScroll" Value="false" />
+							</Trigger>
+							<Trigger SourceName="Popup" Property="Popup.AllowsTransparency" Value="true">
+								<Setter TargetName="DropDownBorder" Property="CornerRadius" Value="0" />
+								<Setter TargetName="DropDownBorder" Property="Margin" Value="0,2,0,0" />
+							</Trigger>
+							<Trigger Property="IsEditable" Value="true">
+								<Setter Property="IsTabStop" Value="false" />
+								<Setter TargetName="PART_EditableTextBox" Property="Visibility"
+							Value="Visible" />
+								<Setter TargetName="ContentSite" Property="Visibility" Value="Hidden" />
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+			<Style.Triggers>
+			</Style.Triggers>
+		</Style>
+
+		<!-- SimpleStyles: ComboBoxItem -->
+		<Style x:Key="{x:Type ComboBoxItem}" TargetType="{x:Type ComboBoxItem}">
+			<Setter Property="SnapsToDevicePixels" Value="true" />
+			<Setter Property="Foreground" Value="White" />
+			<Setter Property="OverridesDefaultStyle" Value="true" />
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type ComboBoxItem}">
+						<Border Name="Border"
+					Padding="2"
+					SnapsToDevicePixels="true">
+							<ContentPresenter />
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsHighlighted" Value="true">
+								<Setter TargetName="Border" Property="Background" Value="#FF4F4F4F" />
+							</Trigger>
+							<Trigger Property="IsEnabled" Value="false">
+								<Setter Property="Foreground" Value="#888888" />
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+
+	</Window.Resources>
+
+	<Grid x:Name="Main" Margin="0,27,0,3" Height="370">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="87*"/>
+			<ColumnDefinition Width="560*"/>
+			<ColumnDefinition Width="126*"/>
+			<ColumnDefinition Width="27*"/>
+		</Grid.ColumnDefinitions>
+		<Image Margin="0,-27,0,-3" Source="/background.png" Width="800" Height="400" d:IsLocked="True" Grid.ColumnSpan="4"/>
+
+		<TextBlock HorizontalAlignment="Left" Margin="18,23,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="16" Width="300" Foreground="White" FontFamily="{StaticResource Quicksand}" Grid.ColumnSpan="2"><Run Language="en-gb" Text="Input file:"/></TextBlock>
+		<TextBox x:Name="textBoxFilePath" HorizontalAlignment="Left" VerticalContentAlignment="Center" Margin="18,44,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="300" RenderTransformOrigin="0.292,0.114" Height="18" AllowDrop="True" Foreground="White" Background="#FF353535" FontFamily="{StaticResource Quicksand}" Grid.ColumnSpan="2"/>
+		<TextBlock HorizontalAlignment="Left" Margin="18,95,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="16" Width="300" Foreground="White" FontFamily="{StaticResource Quicksand}" Grid.ColumnSpan="2"><Run Text="Target file size"/><Run Text=" "/><Run Text="in MB"/><Run Language="en-gb" Text=" (Numbers only)"/><Run Text=":"/><LineBreak/><Run/></TextBlock>
+		<TextBox x:Name="textBoxFileSize" HorizontalAlignment="Left" VerticalContentAlignment="Center" Margin="18,118,0,0" TextWrapping="Wrap" Text="25" VerticalAlignment="Top" Width="300" TextChanged="textBoxFileSize_TextChanged" Height="18" AllowDrop="False" Background="#FF353535" Foreground="White" FontFamily="{StaticResource Quicksand}" Grid.ColumnSpan="2"/>
+		<Button x:Name="ButtonProcess" Content="Compress!" HorizontalAlignment="Left" VerticalAlignment="Top" Click="ButtonProcess_Click" Height="32" Width="122" Margin="18,315,0,0" FontSize="16" Foreground="White" Background="#FFDB701A" BorderBrush="#00707070" FontFamily="{StaticResource Quicksand}" FontWeight="Bold" Grid.ColumnSpan="2">
+			<Button.Resources>
+				<Style TargetType="{x:Type Border}">
+					<Setter Property="CornerRadius" Value="8"/>
+				</Style>
+				<Style TargetType="{x:Type Button}">
+					<Setter Property="Background" Value="#FFDB701A"/>
+					<Setter Property="Template">
+						<Setter.Value>
+							<ControlTemplate TargetType="{x:Type Button}">
+								<Border Background="{TemplateBinding Background}">
+									<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+								</Border>
+							</ControlTemplate>
+						</Setter.Value>
+					</Setter>
+					<Style.Triggers>
+						<Trigger Property="IsMouseOver" Value="True">
+							<Setter Property="Background" Value="#ffaf1e"/>
+						</Trigger>
+					</Style.Triggers>
+				</Style>
+			</Button.Resources>
+		</Button>
+		<Button x:Name="InputBrowseButton" Content="Browse" HorizontalAlignment="Left" Margin="243,44,0,0" VerticalAlignment="Top" Click="InputBrowseButton_Click" Height="18" Width="54" Background="#FFDB701A" Foreground="White" BorderBrush="#00707070" FontFamily="{StaticResource Quicksand}" Grid.Column="1">
+			<Button.Resources>
+				<Style TargetType="{x:Type Border}">
+					<Setter Property="CornerRadius" Value="8"/>
+				</Style>
+				<Style TargetType="{x:Type Button}">
+					<Setter Property="Background" Value="#FFDB701A"/>
+					<Setter Property="Template">
+						<Setter.Value>
+							<ControlTemplate TargetType="{x:Type Button}">
+								<Border Background="{TemplateBinding Background}">
+									<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+								</Border>
+							</ControlTemplate>
+						</Setter.Value>
+					</Setter>
+					<Style.Triggers>
+						<Trigger Property="IsMouseOver" Value="True">
+							<Setter Property="Background" Value="#ffaf1e"/>
+						</Trigger>
+					</Style.Triggers>
+				</Style>
+
+			</Button.Resources>
+		</Button>
+		<ComboBox x:Name="CodecSelector" HorizontalAlignment="Left" VerticalContentAlignment="Center" Margin="18,193,0,0" VerticalAlignment="Top" Width="122" ItemsSource="{Binding Source={StaticResource VideoCodecsData}}" Height="7" SelectedIndex="0" FontFamily="{StaticResource Quicksand}" Grid.ColumnSpan="2" SelectionChanged="CodecSelector_SelectionChanged"/>
+		<TextBlock HorizontalAlignment="Center" Margin="0,172,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="50" Foreground="White" RenderTransformOrigin="0.44,1.19" FontFamily="{StaticResource Quicksand}"><Run Language="en-gb" Text="Encoder:"/></TextBlock>
+		<TextBlock x:Name="nvencWarning" Grid.Column="1" HorizontalAlignment="Left" Margin="68,193,0,0" TextWrapping="Wrap" Text="Warning: NVENC is only available on select NVIDIA GPUs. If supported, compression speed will be significantly increased." VerticalAlignment="Top" Height="106" Width="175" Foreground="White" FontFamily="{StaticResource Quicksand}" Visibility="Hidden"/>
+		<TextBlock Grid.Column="2" HorizontalAlignment="Left" Margin="68,315,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="70" Width="97" FontFamily="Fonts/#Quicksand" FontSize="10" Grid.ColumnSpan="2"><Run Text="Made by:"/><LineBreak/><Run Text="@brownie2648"/><LineBreak/><Run Text="@nolram"/><LineBreak/><Run Text="using ffmpegcore"/></TextBlock>
+		<Grid x:Name="WindowBar" Background="#FFDB701A" Margin="0,-27,0,367" Grid.ColumnSpan="4">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="119*"/>
+				<ColumnDefinition Width="440*"/>
+			</Grid.ColumnDefinitions>
+			<TextBlock Text= "Video Compressor"
+					   Foreground="White"
+					   VerticalAlignment="Center"
+					   HorizontalAlignment="Center"
+					   FontFamily="{StaticResource Quicksand}"
+					   FontWeight="Bold" FontSize="16"/>
+			<Button x:Name="ExitButton" Content="x" HorizontalAlignment="Left" Margin="592,-3,0,0" VerticalAlignment="Top" Background="{x:Null}" BorderBrush="{x:Null}" FontSize="24" Foreground="White" Click="ExitButton_Click" Grid.Column="1" Height="25" Width="28">
+				<Button.Resources>
+					<Style TargetType="{x:Type Border}">
+						<Setter Property="CornerRadius" Value="8"/>
+					</Style>
+					<Style TargetType="{x:Type Button}">
+						<Setter Property="Background" Value="#FFDB701A"/>
+						<Setter Property="Template">
+							<Setter.Value>
+								<ControlTemplate TargetType="{x:Type Button}">
+									<Border Background="{TemplateBinding Background}">
+										<ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+									</Border>
+								</ControlTemplate>
+							</Setter.Value>
+						</Setter>
+						<Style.Triggers>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter Property="Background" Value="#ffaf1e"/>
+							</Trigger>
+						</Style.Triggers>
+					</Style>
+				</Button.Resources>
+				<Button.FontFamily>
+					<StaticResource ResourceKey="Quicksand"/>
+				</Button.FontFamily>
+			</Button>
+
+		</Grid>
+	</Grid>
+</Window>
